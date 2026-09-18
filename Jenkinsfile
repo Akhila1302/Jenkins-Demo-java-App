@@ -25,6 +25,18 @@ pipeline {
                 sh 'mvn test'
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                                    sh '''
+                                        mvn sonar:sonar \
+                                        -Dsonar.projectKey=jenkins-cicd-demo \
+                                        -Dsonar.projectName=jenkins-cicd-demo
+                                    '''
+                                }
+            }
+        }
     }
 
     post {
