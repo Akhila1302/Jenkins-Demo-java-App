@@ -14,6 +14,12 @@ pipeline {
         choices: ['Dev', 'Int', 'QA', 'Prod'],
         description: 'Select the environment to deploy the application'
         )
+
+        string(
+                name: 'ROLLBACK_BUILD',
+                defaultValue: '',
+                description: 'Enter previous Jenkins build number to rollback, e.g. 10'
+            )
     }
 
     agent any
@@ -130,6 +136,83 @@ pipeline {
                     sleep 10
 
                     curl -f http://localhost:8081/health
+                '''
+            }
+        }
+
+        stage('Approval for PROD') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    input message: 'Dev, QA deployment successful. Deploy to PROD?',
+                          ok: 'Deploy to PROD'
+                }
+            }
+        }
+
+        stage('Deploy to PROD') {
+            steps {
+                sh '''
+                    docker pull ${ECR_REPO}:${IMAGE_TAG}
+
+                    docker stop jenkins-cicd-demo-prod || true
+                    docker rm jenkins-cicd-demo-prod || true
+
+                    docker run -d \
+                        --name jenkins-cicd-demo-prod \
+                        -p 8083:8080 \
+                        ${ECR_REPO}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('PROD Health Check') {
+            steps {
+                sh '''
+                    sleep 10
+                    curl -f http://localhost:8083/health
+                '''
+            }
+        }
+
+        stage('Rollback PROD') {
+            when {
+                expression {
+                    params.ROLLBACK_BUILD?.trim()
+                }
+            }
+
+            steps {
+                script {
+                    env.ROLLBACK_TAG = "build-${params.ROLLBACK_BUILD}"
+
+                    echo "Rolling back PROD to ${env.ROLLBACK_TAG}"
+
+                    sh '''
+                        docker pull ${ECR_REPO}:${ROLLBACK_TAG}
+
+                        docker stop jenkins-cicd-demo-prod || true
+                        docker rm jenkins-cicd-demo-prod || true
+
+                        docker run -d \
+                            --name jenkins-cicd-demo-prod \
+                            -p 8083:8080 \
+                            ${ECR_REPO}:${ROLLBACK_TAG}
+                    '''
+                }
+            }
+        }
+
+        stage('Rollback Health Check') {
+            when {
+                expression {
+                    params.ROLLBACK_BUILD?.trim()
+                }
+            }
+
+            steps {
+                sh '''
+                    sleep 10
+                    curl -f http://localhost:8083/health
                 '''
             }
         }
