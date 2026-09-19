@@ -3,7 +3,6 @@ pipeline {
     environment {
         APP_NAME = 'jenkins-cicd-demo'
         APP_VERSION = '1.0.0'
-        APP_NAME = 'jenkins-cicd-demo'
         AWS_REGION = 'us-east-1'
         ECR_REPO = '181250799935.dkr.ecr.us-east-1.amazonaws.com/jenkins-cicd-demo'
 
