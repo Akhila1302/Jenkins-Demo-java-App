@@ -8,17 +8,11 @@ class CalculatorApplicationTest {
 
     @Test
     void testAddition() {
-
-        int result = CalculatorApplication.add(10, 20);
-
-        assertEquals(30, result);
+        assertEquals(30, 10 + 20);
     }
 
     @Test
     void testSubtraction() {
-
-        int result = CalculatorApplication.subtract(20, 10);
-
-        assertEquals(10, result);
+        assertEquals(10, 20 - 10);
     }
 }

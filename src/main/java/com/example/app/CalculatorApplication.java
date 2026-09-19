@@ -1,21 +1,30 @@
 package com.example.app;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
 public class CalculatorApplication {
 
-    public static int add(int a, int b) {
-        return a + b;
-    }
-
-    public static int subtract(int a, int b) {
-        return a - b;
-    }
-
     public static void main(String[] args) {
+        SpringApplication.run(CalculatorApplication.class, args);
+    }
 
-        System.out.println("Jenkins CI/CD Demo Application");
+    @GetMapping("/")
+    public String home() {
+        return "Jenkins CI/CD Demo Application";
+    }
 
-        int result = add(10, 20);
+    @GetMapping("/health")
+    public String health() {
+        return "UP";
+    }
 
-        System.out.println("10 + 20 = " + result);
+    @GetMapping("/add")
+    public String add() {
+        return "10 + 20 = " + (10 + 20);
     }
 }
