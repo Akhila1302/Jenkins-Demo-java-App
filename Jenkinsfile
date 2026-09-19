@@ -118,7 +118,18 @@ pipeline {
 
                     docker run -d \
                         --name jenkins-cicd-demo-dev \
+                        -p 8081:8080 \
                         ${ECR_REPO}:${IMAGE_TAG}
+                '''
+            }
+        }
+
+        stage('DEV Health Check') {
+            steps {
+                sh '''
+                    sleep 10
+
+                    curl -f http://localhost:8081/health
                 '''
             }
         }
