@@ -107,6 +107,21 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy to DEV') {
+            steps {
+                sh '''
+                    docker pull ${ECR_REPO}:${IMAGE_TAG}
+
+                    docker stop jenkins-cicd-demo-dev || true
+                    docker rm jenkins-cicd-demo-dev || true
+
+                    docker run -d \
+                        --name jenkins-cicd-demo-dev \
+                        ${ECR_REPO}:${IMAGE_TAG}
+                '''
+            }
+        }
     }
 
     post {
