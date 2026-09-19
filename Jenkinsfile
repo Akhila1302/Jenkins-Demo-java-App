@@ -1,5 +1,18 @@
 pipeline {
 
+    environment {
+        APP_NAME = 'jenkins-cicd-demo'
+        APP_VERSION = '1.0.0'
+    }
+
+    parameters {
+        choice(
+        name : 'Environment'
+        choices: ['Dev', 'Int', 'QA', 'Prod'],
+        description: 'Select the environment to deploy the application'
+        )
+    }
+
     agent any
 
     tools {
@@ -44,6 +57,14 @@ pipeline {
                  timeout(time: 5, unit: 'MINUTES') {
                             waitForQualityGate abortPipeline: true
                         }
+            }
+        }
+
+        stage('Show Environment') {
+            steps {
+                echo "Selected Environment: ${params.Environment}"
+                echo "Application: ${env.APP_NAME}"
+                echo "Version: ${env.APP_VERSION}"
             }
         }
 
