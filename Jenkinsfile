@@ -73,6 +73,19 @@ pipeline {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    env.IMAGE_TAG = "build-${BUILD_NUMBER}"
+                    env.IMAGE_NAME = "${env.APP_NAME}:${env.IMAGE_TAG}"
+
+                    sh "docker build -t ${env.IMAGE_NAME} ."
+
+                    echo "Built image: ${env.IMAGE_NAME}"
+                }
+            }
+        }
     }
 
     post {
